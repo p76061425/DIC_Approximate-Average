@@ -1,0 +1,117 @@
+`timescale 1ns/10ps
+module CS(Y, X, reset, clk);
+
+input clk, reset; 
+input 	[7:0] X;
+output 	[9:0] Y;
+
+//--------------------------------------
+//  \^o^/   Write your code here~  \^o^/
+//--------------------------------------
+
+reg [7:0] data [0:8]; 
+reg [7:0] data2 [0:8] ;
+integer i ;
+
+reg [7:0] avg;
+reg [11:0] appr;
+reg [11:0] sum;
+
+reg [9:0]compareL1_1;
+reg [9:0]compareL1_2;
+reg [9:0]compareL1_3;
+reg [9:0]compareL1_4;
+reg [9:0]compareL2_1;
+reg [9:0]compareL2_2;
+reg [9:0]compareL3_1;
+
+reg [9:0]Y;
+
+
+always@(posedge clk or posedge reset) begin
+	
+	if(reset) begin
+		for(i=1;i<9;i=i+1)begin
+		    data[i]<=8'b0;
+		end
+	end
+	else begin
+	    data[0]<=X;
+	    for(i=1;i<9;i=i+1)begin
+		    data[i]<=data[i-1];
+	    end
+    end
+	
+end
+
+always@(*)begin
+    
+	sum = data[0] + 
+	      data[1] + 
+		  data[2] + 
+		  data[3] + 
+		  data[4] + 
+		  data[5] + 
+		  data[6] + 
+		  data[7] + 
+		  data[8];
+	
+	avg = sum/9;
+	
+	for(i=0;i<9;i=i+1)begin
+		data2[i] = data [i];		
+	end
+	
+	for(i=0;i<9;i=i+1)begin
+		if(data[i]>avg)begin
+			data2[i] = 8'b0;
+		end
+	end
+		
+	if(data2[0]>data2[1]) 
+		compareL1_1 = data2[0];
+	else
+		compareL1_1 = data2[1];
+
+	if(data2[2]>data2[3]) 
+		compareL1_2 = data2[2];
+	else
+		compareL1_2 = data2[3];
+		
+	if(data2[4]>data2[5]) 
+		compareL1_3 = data2[4];
+	else
+		compareL1_3 = data2[5];
+	
+	if(data2[6]>data2[7]) 
+		compareL1_4 = data2[6];
+	else
+		compareL1_4 = data2[7];
+	
+	if(compareL1_1>compareL1_2) 
+		compareL2_1 = compareL1_1;
+	else
+		compareL2_1 = compareL1_2;
+		
+	if(compareL1_3>compareL1_4) 
+		compareL2_2 = compareL1_3;
+	else
+		compareL2_2 = compareL1_4;
+		
+	if(compareL2_1>compareL2_2)
+		compareL3_1 = compareL2_1;
+	else
+		compareL3_1 = compareL2_2;
+	
+	if(compareL3_1>data2[8])
+		appr = compareL3_1;
+	else
+		appr = data2[8];
+	
+	Y =((sum+(appr<<3)+appr)>>3);
+	
+	
+end
+
+
+endmodule
